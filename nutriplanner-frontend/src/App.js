@@ -17,38 +17,43 @@ import AppHeader from './components/AppHeader';
 import AppFooter from './components/AppFooter';
 import ScrollToTop from './components/ScrollToTop';
 import { StorageService } from './utils/storage';
+import { colors } from './theme/colors';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#10B981',
-      light: '#34D399',
-      dark: '#059669',
+      main: colors.primary.main,
+      light: colors.primary.light,
+      dark: colors.primary.dark,
     },
     secondary: {
-      main: '#3B82F6',
-      light: '#60A5FA',
-      dark: '#2563EB',
+      main: colors.secondary.main,
+      light: colors.secondary.light,
+      dark: colors.secondary.dark,
     },
     background: {
-      default: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      paper: '#FFFFFF',
+      default: colors.background.light,
+      paper: colors.background.white,
     },
     success: {
-      main: '#10B981',
-      light: '#34D399',
+      main: colors.primary.main,
+      light: colors.primary.light,
     },
     info: {
-      main: '#3B82F6',
-      light: '#60A5FA',
+      main: colors.secondary.main,
+      light: colors.secondary.light,
     },
     warning: {
-      main: '#F59E0B',
-      light: '#FBBF24',
+      main: colors.warning.main,
+      light: colors.warning.light,
     },
     error: {
       main: '#EF4444',
       light: '#F87171',
+    },
+    text: {
+      primary: colors.text.primary,
+      secondary: colors.text.secondary,
     }
   },
   typography: {
@@ -124,9 +129,10 @@ const theme = createTheme({
           },
         },
         contained: {
-          background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+          background: colors.primary.gradient,
+          color: colors.text.white,
           '&:hover': {
-            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+            background: `linear-gradient(135deg, ${colors.primary.dark} 0%, #047857 100%)`,
           },
         },
       },
@@ -162,7 +168,16 @@ const theme = createTheme({
 function App() {
   // Инициализируем хранилище при загрузке приложения
   React.useEffect(() => {
-    StorageService.initializeDefaultData();
+    const initData = async () => {
+      try {
+        await StorageService.initializeDefaultData();
+        console.log('✅ Данные инициализированы');
+      } catch (error) {
+        console.error('❌ Ошибка инициализации данных:', error);
+        // Не блокируем приложение, если инициализация не удалась
+      }
+    };
+    initData();
   }, []);
 
   return (
@@ -174,10 +189,41 @@ function App() {
           minHeight: '100vh', 
           display: 'flex', 
           flexDirection: 'column',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%)',
-          backgroundSize: '400% 400%',
-          animation: 'gradient 15s ease infinite'
+          position: 'relative'
         }}>
+          {/* Фоновое изображение */}
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundImage: 'url(/backgroundimage.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+            zIndex: 0,
+            opacity: 0.5
+          }} />
+          {/* Затемнение для лучшей читаемости */}
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 25%, rgba(240, 147, 251, 0.2) 50%, rgba(79, 172, 254, 0.25) 75%, rgba(0, 242, 254, 0.2) 100%)',
+            zIndex: 1
+          }} />
+          {/* Контент поверх фона */}
+          <div style={{
+            position: 'relative',
+            zIndex: 2,
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
           <style>{`
             @keyframes gradient {
               0% { background-position: 0% 50%; }
@@ -236,9 +282,10 @@ function App() {
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/recipe-generator" element={<RecipeGeneratorPage />} />
               <Route path="/seasonal-menu" element={<SeasonalMenuPage />} />
-            </Routes>
-          </main>
-          <AppFooter />
+              </Routes>
+            </main>
+            <AppFooter />
+          </div>
         </div>
       </Router>
     </ThemeProvider>

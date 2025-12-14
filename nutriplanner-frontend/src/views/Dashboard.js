@@ -19,6 +19,7 @@ import {
   People,
   TrendingUp
 } from '@mui/icons-material';
+import { colors } from '../theme/colors';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -36,9 +37,6 @@ const Dashboard = () => {
   return (
 <Box
   style={{
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%)',
-    backgroundSize: '400% 400%',
-    animation: 'gradient 15s ease infinite',
     minHeight: '100vh',
     padding: '32px 0',
     position: 'relative',
@@ -86,15 +84,39 @@ const Dashboard = () => {
       />
 
       <Container maxWidth="lg" style={{ position: 'relative', zIndex: 1 }}>
-        {/* Hero Section */}
-        <Box textAlign="center" style={{ marginBottom: '64px', padding: '32px 0' }}>
+        {/* Hero Section с изображением */}
+        <Box 
+          textAlign="center" 
+          sx={{
+            marginBottom: { xs: '32px', md: '64px' },
+            padding: { xs: '32px 16px', md: '48px 24px' },
+            borderRadius: { xs: '16px', md: '24px' },
+            backgroundImage: `url(${background})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <Box
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(59, 130, 246, 0.85) 100%)',
+              zIndex: 0
+            }}
+          />
+          <Box style={{ position: 'relative', zIndex: 1 }}>
           <Typography 
             variant="h2" 
             component="h1" 
             gutterBottom 
             style={{ 
               fontWeight: 'bold',
-              background: 'linear-gradient(45deg, #FFFFFF 30%, #E0E0E0 90%)',
+              background: `linear-gradient(45deg, ${colors.text.white} 30%, ${colors.text.light} 90%)`,
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               color: 'transparent',
@@ -106,7 +128,7 @@ const Dashboard = () => {
           <Typography 
             variant="h5" 
             style={{ 
-              color: 'rgba(255,255,255,0.9)',
+              color: colors.text.white,
               marginBottom: '32px',
               textShadow: '0 2px 10px rgba(0,0,0,0.2)'
             }}
@@ -122,11 +144,11 @@ const Dashboard = () => {
               padding: '18px 56px',
               fontSize: '1.3rem',
               fontWeight: 700,
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              background: colors.primary.gradient,
               borderRadius: '50px',
-              boxShadow: '0 20px 60px rgba(16, 185, 129, 0.4)',
+              boxShadow: `0 20px 60px ${colors.primary.main}66`,
               textTransform: 'none',
-              color: 'white',
+              color: colors.text.white,
               transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
             }}
             sx={{
@@ -144,16 +166,18 @@ const Dashboard = () => {
         </Box>
 
         {/* Features Grid */}
-        <Grid container spacing={4} style={{ marginBottom: '64px' }}>
+        <Grid container spacing={{ xs: 2, md: 4 }} sx={{ marginBottom: { xs: '32px', md: '64px' } }}>
           <Grid item xs={12} md={4}>
             <Card style={{ 
               height: '100%', 
               textAlign: 'center', 
               padding: '24px',
-              background: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              transition: 'all 0.3s ease'
+              background: 'rgba(255,255,255,0.85)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
             }}
             sx={{
               '&:hover': {
@@ -168,10 +192,10 @@ const Dashboard = () => {
                   marginBottom: '16px',
                   filter: 'drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3))'
                 }} />
-                <Typography variant="h5" gutterBottom style={{ fontWeight: 'bold', color: '#2D3748' }}>
+                <Typography variant="h5" gutterBottom style={{ fontWeight: 'bold', color: colors.text.primary }}>
                   30+ Заболеваний
                 </Typography>
-                <Typography variant="body2" style={{ color: '#718096', lineHeight: 1.6 }}>
+                <Typography variant="body2" style={{ color: colors.text.secondary, lineHeight: 1.6 }}>
                   Специализированные диеты для диабета, гипертонии, гастрита и других заболеваний с медицинским подходом
                 </Typography>
               </CardContent>
@@ -183,10 +207,12 @@ const Dashboard = () => {
               height: '100%', 
               textAlign: 'center', 
               padding: '24px',
-              background: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              transition: 'all 0.3s ease'
+              background: 'rgba(255,255,255,0.85)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
             }}
             sx={{
               '&:hover': {
@@ -201,10 +227,10 @@ const Dashboard = () => {
                   marginBottom: '16px',
                   filter: 'drop-shadow(0 4px 8px rgba(118, 75, 162, 0.3))'
                 }} />
-                <Typography variant="h5" gutterBottom style={{ fontWeight: 'bold', color: '#2D3748' }}>
+                <Typography variant="h5" gutterBottom style={{ fontWeight: 'bold', color: colors.text.primary }}>
                    Аналитика
                 </Typography>
-                <Typography variant="body2" style={{ color: '#718096', lineHeight: 1.6 }}>
+                <Typography variant="body2" style={{ color: colors.text.secondary, lineHeight: 1.6 }}>
                 Анализ ваших данных и адаптация рационов под индивидуальные потребности и прогресс
                 </Typography>
               </CardContent>
@@ -216,10 +242,12 @@ const Dashboard = () => {
               height: '100%', 
               textAlign: 'center', 
               padding: '24px',
-              background: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              transition: 'all 0.3s ease'
+              background: 'rgba(255,255,255,0.85)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
             }}
             sx={{
               '&:hover': {
@@ -234,10 +262,10 @@ const Dashboard = () => {
                   marginBottom: '16px',
                   filter: 'drop-shadow(0 4px 8px rgba(240, 147, 251, 0.3))'
                 }} />
-                <Typography variant="h5" gutterBottom style={{ fontWeight: 'bold', color: '#2D3748' }}>
+                <Typography variant="h5" gutterBottom style={{ fontWeight: 'bold', color: colors.text.primary }}>
                   Детальный расчёт
                 </Typography>
-                <Typography variant="body2" style={{ color: '#718096', lineHeight: 1.6 }}>
+                <Typography variant="body2" style={{ color: colors.text.secondary, lineHeight: 1.6 }}>
                   Полный расчёт КБЖУ, витаминов и минералов для каждого приёма пищи с персонализированными рекомендациями
                 </Typography>
               </CardContent>
@@ -254,13 +282,13 @@ const Dashboard = () => {
           padding: '48px 24px',
           border: '1px solid rgba(255,255,255,0.2)'
         }}>
-          <Typography variant="h3" gutterBottom style={{ fontWeight: 'bold', color: 'white', marginBottom: '48px' }}>
+          <Typography variant="h3" gutterBottom style={{ fontWeight: 'bold', color: colors.text.white, marginBottom: '48px' }}>
             Почему выбирают нас?
           </Typography>
           <Grid container spacing={6}>
             <Grid item xs={12} md={4}>
               <People style={{ fontSize: 64, color: 'rgba(255,255,255,0.9)', marginBottom: '16px' }} />
-              <Typography variant="h2" style={{ color: 'white', fontWeight: 'bold', marginBottom: '8px' }}>
+              <Typography variant="h2" style={{ color: colors.text.white, fontWeight: 'bold', marginBottom: '8px' }}>
                 2,847+
               </Typography>
               <Typography variant="h6" style={{ color: 'rgba(255,255,255,0.8)' }}>Довольных пользователей</Typography>
@@ -292,26 +320,46 @@ const Dashboard = () => {
         </Box>
 
         {/* CTA Section */}
-        <Box textAlign="center" style={{ marginTop: '80px', padding: '48px 0' }}>
-          <Typography variant="h4" gutterBottom style={{ fontWeight: 'bold', color: 'white', marginBottom: '16px' }}>
+        <Box textAlign="center" sx={{
+          marginTop: { xs: '40px', md: '80px' },
+          padding: { xs: '32px 16px', md: '48px 24px' },
+          background: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: { xs: '16px', md: '24px' },
+          border: '1px solid rgba(255, 255, 255, 0.2)'
+        }}>
+          <Typography variant="h4" gutterBottom sx={{
+            fontWeight: 'bold',
+            color: '#FFFFFF',
+            marginBottom: '16px',
+            textShadow: '0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6)',
+            fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' },
+            px: { xs: 2, md: 0 }
+          }}>
             Готовы начать путь к здоровому питанию?
           </Typography>
-          <Typography variant="h6" style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '32px' }}>
+          <Typography variant="h6" sx={{
+            color: '#FFFFFF',
+            marginBottom: { xs: '24px', md: '32px' },
+            textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(0, 0, 0, 0.6)',
+            fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' },
+            px: { xs: 2, md: 0 }
+          }}>
             Создайте свой первый индивидуальный рацион прямо сейчас
           </Typography>
           <Button 
             variant="contained" 
             size="large"
             onClick={() => handleSmoothNavigation('/generator')}
-            style={{ 
-              padding: '18px 56px',
-              fontSize: '1.2rem',
+            sx={{
+              padding: { xs: '14px 32px', md: '18px 56px' },
+              fontSize: { xs: '1rem', md: '1.2rem' },
               fontWeight: 700,
-              background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+              background: colors.secondary.gradient,
               borderRadius: '50px',
-              boxShadow: '0 20px 60px rgba(59, 130, 246, 0.4)',
+              boxShadow: `0 20px 60px ${colors.secondary.main}66`,
               textTransform: 'none',
-              color: 'white',
+              color: colors.text.white,
               transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
             }}
             sx={{
@@ -326,6 +374,7 @@ const Dashboard = () => {
           >
             🚀 Начать бесплатно
           </Button>
+          </Box>
         </Box>
       </Container>
     </Box>

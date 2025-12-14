@@ -211,7 +211,15 @@ const ProgressPage = () => {
       </Box>
 
       {/* Основные метрики БЖУ */}
-      <Paper style={{ padding: "24px", marginBottom: "24px", backgroundColor: "#F0FFF4" }}>
+      <Paper style={{ 
+        padding: "24px", 
+        marginBottom: "24px",
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+      }}>
         <Typography variant="h6" gutterBottom style={{ fontWeight: "bold", color: "#2E8B57" }}>
           🥗 Средние показатели БЖУ из ваших планов
         </Typography>
@@ -252,7 +260,13 @@ const ProgressPage = () => {
       <Grid container spacing={3}>
         {/* Вес */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
             <CardContent>
               <Box
                 style={{
@@ -299,7 +313,13 @@ const ProgressPage = () => {
 
         {/* Калории */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
             <CardContent>
               <Box
                 style={{
@@ -347,7 +367,13 @@ const ProgressPage = () => {
 
         {/* Вода */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
             <CardContent>
               <Box
                 style={{
@@ -390,7 +416,13 @@ const ProgressPage = () => {
 
         {/* Шаги */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
             <CardContent>
               <Box
                 style={{

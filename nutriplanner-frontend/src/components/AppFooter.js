@@ -70,7 +70,7 @@ const AppFooter = () => {
       />
 
       <Container maxWidth="lg" style={{ position: 'relative', zIndex: 1 }}>
-        <Grid container spacing={4} style={{ marginBottom: '32px' }}>
+        <Grid container spacing={{ xs: 3, md: 4 }} sx={{ marginBottom: { xs: '24px', md: '32px' } }}>
           {/* О проекте */}
           <Grid item xs={12} md={4}>
             <Box style={{ marginBottom: '24px' }}>
@@ -333,13 +333,13 @@ const AppFooter = () => {
               <Box style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#cbd5e0' }}>
                 <Phone style={{ color: '#10B981', fontSize: '20px' }} />
                 <Typography variant="body2">
-                  +7 (999) 123-45-67
+                  +7 (999) 999-99-99
                 </Typography>
               </Box>
               <Box style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#cbd5e0' }}>
                 <LocationOn style={{ color: '#10B981', fontSize: '20px' }} />
                 <Typography variant="body2">
-                  Москва, Россия
+                  Астана, Казахстан
                 </Typography>
               </Box>
             </Box>
@@ -367,7 +367,7 @@ const AppFooter = () => {
               gap: '8px'
             }}
           >
-            © 2024 NutriPlanner. Все права защищены.
+            © 2025 NutriPlanner. Все права защищены.
           </Typography>
           <Typography 
             variant="body2" 

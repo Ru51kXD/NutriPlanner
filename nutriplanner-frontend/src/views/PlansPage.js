@@ -28,15 +28,19 @@ import {
   Visibility,
   Delete,
   ExpandMore,
-  Close
+  Close,
+  Favorite,
+  FavoriteBorder
 } from '@mui/icons-material';
 import { StorageService } from '../utils/storage';
+import { colors } from '../theme/colors';
 
 const PlansPage = () => {
   const [plans, setPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [viewDialog, setViewDialog] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
+  const [favoritePlans, setFavoritePlans] = useState([]);
 
   // Данные заболеваний для отображения
   const diseasesData = [
@@ -51,8 +55,34 @@ const PlansPage = () => {
     // Инициализируем данные при загрузке
     StorageService.initializeDefaultData().then(() => {
       loadPlans();
+      loadFavoritePlans();
     });
   }, []);
+
+  const loadFavoritePlans = () => {
+    const favorites = JSON.parse(localStorage.getItem('favoritePlans') || '[]');
+    setFavoritePlans(favorites);
+  };
+
+  const toggleFavoritePlan = (planId) => {
+    const favorites = JSON.parse(localStorage.getItem('favoritePlans') || '[]');
+    const index = favorites.indexOf(planId);
+    
+    if (index > -1) {
+      favorites.splice(index, 1);
+      setSnackbar({ open: true, message: 'План удалён из избранного' });
+    } else {
+      favorites.push(planId);
+      setSnackbar({ open: true, message: 'План добавлен в избранное' });
+    }
+    
+    localStorage.setItem('favoritePlans', JSON.stringify(favorites));
+    setFavoritePlans(favorites);
+  };
+
+  const isPlanFavorite = (planId) => {
+    return favoritePlans.includes(planId);
+  };
 
   const loadPlans = async () => {
     try {
@@ -90,14 +120,14 @@ const PlansPage = () => {
   };
 
   const getDiseaseColor = (disease) => {
-    const colors = {
+    const diseaseColors = {
       'gastritis': 'success',
       'diabetes': 'error',
       'obesity': 'warning',
       'anemia': 'secondary',
       'hypertension': 'info'
     };
-    return colors[disease] || 'default';
+    return diseaseColors[disease] || 'default';
   };
 
 const getDiseaseLabel = (diseaseValue) => {
@@ -119,17 +149,26 @@ const getDiseaseLabel = (diseaseValue) => {
   };
 
   return (
-    <Container maxWidth="lg" style={{ padding: '32px 0', minHeight: '80vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
-      <Box style={{ marginBottom: '32px', textAlign: 'center' }}>
-        <Typography variant="h4" component="h1" gutterBottom style={{ fontWeight: 'bold', color: '#2D3748' }}>
+    <Container maxWidth="lg" sx={{ padding: { xs: '16px 0', md: '32px 0' }, minHeight: '80vh', position: 'relative' }}>
+      <Box sx={{ marginBottom: { xs: '24px', md: '32px' }, textAlign: 'center', px: { xs: 2, md: 0 } }}>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          gutterBottom 
+          sx={{ 
+            fontWeight: 'bold', 
+            color: colors.text.primary,
+            fontSize: { xs: '1.5rem', md: '2.125rem' }
+          }}
+        >
           📋 Мои планы питания
         </Typography>
-        <Typography variant="body1" style={{ color: '#718096' }}>
+        <Typography variant="body1" sx={{ color: colors.text.secondary, fontSize: { xs: '0.875rem', md: '1rem' } }}>
           Все созданные вами индивидуальные рационы питания
         </Typography>
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={{ xs: 2, md: 3 }}>
         {plans.map((plan, index) => {
           const diseaseInfo = getDiseaseInfo(plan.disease) || {};
           const bzu = plan.bzu || diseaseInfo.bzu || { protein: 0, fat: 0, carbs: 0 };
@@ -145,13 +184,15 @@ const getDiseaseLabel = (diseaseValue) => {
                 animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
               }}
             >
-              <Card style={{ 
+              <Card style={{
                 height: '100%', 
                 display: 'flex', 
                 flexDirection: 'column',
-                background: 'rgba(255,255,255,0.9)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.3)',
+                background: 'rgba(255,255,255,0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255,255,255,0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 cursor: 'pointer'
               }}
@@ -233,6 +274,16 @@ const getDiseaseLabel = (diseaseValue) => {
                     Просмотреть
                   </Button>
                   <Box style={{ display: 'flex', gap: '8px' }}>
+                    <Button 
+                      startIcon={isPlanFavorite(plan.id) ? <Favorite /> : <FavoriteBorder />} 
+                      size="small"
+                      onClick={() => toggleFavoritePlan(plan.id)}
+                      style={{ 
+                        color: isPlanFavorite(plan.id) ? '#EF4444' : '#718096'
+                      }}
+                    >
+                      {isPlanFavorite(plan.id) ? 'В избранном' : 'В избранное'}
+                    </Button>
                     <Button 
                       startIcon={<Share />} 
                       size="small"
@@ -369,7 +420,12 @@ const getDiseaseLabel = (diseaseValue) => {
           </IconButton>
         </DialogTitle>
         
-        <DialogContent style={{ padding: '32px 40px', background: 'linear-gradient(to bottom, #FAFAFA 0%, #FFFFFF 100%)' }}>
+        <DialogContent sx={{ 
+          padding: { xs: '16px', md: '32px 40px' }, 
+          background: 'linear-gradient(to bottom, #FAFAFA 0%, #FFFFFF 100%)',
+          maxHeight: { xs: 'calc(100vh - 200px)', md: '80vh' },
+          overflow: 'auto'
+        }}>
           {selectedPlan && (() => {
             const diseaseInfo = getDiseaseInfo(selectedPlan.disease) || {};
             const bzu = selectedPlan.bzu || diseaseInfo.bzu || { protein: 0, fat: 0, carbs: 0 };
@@ -378,9 +434,14 @@ const getDiseaseLabel = (diseaseValue) => {
             return (
               <Box>
                 {/* Основная информация */}
-                <Grid container spacing={3} style={{ marginBottom: '32px' }}>
+                <Grid container spacing={{ xs: 2, md: 3 }} sx={{ marginBottom: { xs: '24px', md: '32px' } }}>
                   <Grid item xs={12} md={3}>
-                    <Card style={{ 
+                    <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)', 
                       textAlign: 'center', 
                       padding: '28px 20px', 
                       background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
@@ -416,7 +477,12 @@ const getDiseaseLabel = (diseaseValue) => {
                     </Card>
                   </Grid>
                   <Grid item xs={12} md={3}>
-                    <Card style={{ 
+                    <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)', 
                       textAlign: 'center', 
                       padding: '28px 20px', 
                       background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
@@ -452,7 +518,12 @@ const getDiseaseLabel = (diseaseValue) => {
                     </Card>
                   </Grid>
                   <Grid item xs={12} md={3}>
-                    <Card style={{ 
+                    <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)', 
                       textAlign: 'center', 
                       padding: '28px 20px', 
                       background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
@@ -488,7 +559,12 @@ const getDiseaseLabel = (diseaseValue) => {
                     </Card>
                   </Grid>
                   <Grid item xs={12} md={3}>
-                    <Card style={{ 
+                    <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)', 
                       textAlign: 'center', 
                       padding: '28px 20px', 
                       background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
@@ -528,7 +604,12 @@ const getDiseaseLabel = (diseaseValue) => {
                 {/* Детали плана */}
                 <Grid container spacing={2} style={{ marginBottom: '24px' }}>
                   <Grid item xs={12} md={6}>
-                    <Card style={{ padding: '16px' }}>
+                    <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)', padding: '16px' }}>
                       <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold' }}>📋 Информация о плане</Typography>
                       <Typography><strong>Заболевание:</strong> {getDiseaseLabel(selectedPlan.disease)}</Typography>
                       <Typography><strong>Период:</strong> {
@@ -540,7 +621,12 @@ const getDiseaseLabel = (diseaseValue) => {
                     </Card>
                   </Grid>
                   <Grid item xs={12} md={6}>
-                    <Card style={{ padding: '16px' }}>
+                    <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)', padding: '16px' }}>
                       <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold' }}>💊 Рекомендации</Typography>
                       <Typography><strong>Основная цель:</strong> {diseaseInfo.goal || 'Не указана'}</Typography>
                       <Typography><strong>Витамины:</strong> {selectedPlan.vitamins || diseaseInfo.vitamins || 'Не указаны'}</Typography>
@@ -564,7 +650,12 @@ const getDiseaseLabel = (diseaseValue) => {
                         <Grid container spacing={2}>
                           {dayMeals.meals.map((meal, mealIndex) => (
                             <Grid item xs={12} md={6} key={mealIndex}>
-                              <Card style={{ padding: '12px', borderLeft: `4px solid #667eea` }}>
+                              <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)', padding: '12px', borderLeft: `4px solid #667eea` }}>
                                 <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
                                   <Typography variant="subtitle1" style={{ fontWeight: 'bold', color: '#667eea' }}>
                                     {meal.type}
@@ -594,7 +685,12 @@ const getDiseaseLabel = (diseaseValue) => {
                     </Accordion>
                   ))
                 ) : (
-                  <Card style={{ padding: '20px', textAlign: 'center' }}>
+                  <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)', padding: '20px', textAlign: 'center' }}>
                     <Typography variant="body1" style={{ color: '#718096' }}>
                       Детальный план питания будет сгенерирован в ближайшее время
                     </Typography>

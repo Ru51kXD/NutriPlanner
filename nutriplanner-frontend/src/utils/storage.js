@@ -1,5 +1,8 @@
 // Утилита для работы с localStorage (аналог AsyncStorage для веба)
 
+// Импорт API для работы с PostgreSQL
+import { api } from './api.js';
+
 class AsyncStorage {
   static async getItem(key) {
     try {
@@ -51,15 +54,34 @@ class AsyncStorage {
   }
 }
 
+// Флаг для переключения между localStorage и PostgreSQL API
+// Установите USE_API = true для работы с PostgreSQL через backend
+const USE_API = true; // Измените на true для подключения к PostgreSQL
+
 // Специализированные функции для работы с данными приложения
 export const StorageService = {
   // Планы питания
   async getPlans() {
+    if (USE_API && api) {
+      try {
+        return await api.getPlans();
+      } catch (error) {
+        console.error('Ошибка API, используем localStorage:', error);
+        return await AsyncStorage.getItem('dietPlans') || [];
+      }
+    }
     const plans = await AsyncStorage.getItem('dietPlans') || [];
     return plans;
   },
 
   async savePlan(plan) {
+    if (USE_API && api) {
+      try {
+        return await api.createPlan(plan);
+      } catch (error) {
+        console.error('Ошибка API, используем localStorage:', error);
+      }
+    }
     const plans = await this.getPlans();
     const newPlan = {
       ...plan,
@@ -91,11 +113,26 @@ export const StorageService = {
 
   // Пользователи
   async getUsers() {
+    if (USE_API && api) {
+      try {
+        return await api.getUsers();
+      } catch (error) {
+        console.error('Ошибка API, используем localStorage:', error);
+        return await AsyncStorage.getItem('users') || [];
+      }
+    }
     const users = await AsyncStorage.getItem('users') || [];
     return users;
   },
 
   async saveUser(user) {
+    if (USE_API && api) {
+      try {
+        return await api.createUser(user);
+      } catch (error) {
+        console.error('Ошибка API, используем localStorage:', error);
+      }
+    }
     const users = await this.getUsers();
     const newUser = {
       ...user,
@@ -108,6 +145,13 @@ export const StorageService = {
   },
 
   async updateUser(userId, updatedUser) {
+    if (USE_API && api) {
+      try {
+        return await api.updateUser(userId, updatedUser);
+      } catch (error) {
+        console.error('Ошибка API, используем localStorage:', error);
+      }
+    }
     const users = await this.getUsers();
     const index = users.findIndex(u => u.id === userId);
     if (index !== -1) {
@@ -162,6 +206,14 @@ export const StorageService = {
 
   // Рецепты
   async getRecipes() {
+    if (USE_API && api) {
+      try {
+        return await api.getRecipes();
+      } catch (error) {
+        console.error('Ошибка API, используем localStorage:', error);
+        return await AsyncStorage.getItem('recipes') || [];
+      }
+    }
     const recipes = await AsyncStorage.getItem('recipes') || [];
     return recipes;
   },

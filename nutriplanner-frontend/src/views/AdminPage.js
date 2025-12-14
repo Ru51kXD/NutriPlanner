@@ -292,7 +292,15 @@ const handleDiseaseSubmit = async () => {
   if (!isAuthenticated) {
     return (
       <Container maxWidth="sm" style={{ padding: '64px 16px' }}>
-        <Card elevation={8} style={{ borderRadius: '24px', overflow: 'hidden' }}>
+        <Card elevation={8} style={{ 
+          borderRadius: '24px', 
+          overflow: 'hidden',
+          background: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(30px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)'
+        }}>
           <Box style={{
             background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
             padding: '32px',
@@ -398,7 +406,14 @@ const handleDiseaseSubmit = async () => {
         </Button>
       </Box>
 
-      <Paper sx={{ mb: 3 }}>
+      <Paper sx={{ 
+        mb: 3,
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+      }}>
         <Tabs
           value={tabValue}
           onChange={(e, newValue) => setTabValue(newValue)}
@@ -418,7 +433,14 @@ const handleDiseaseSubmit = async () => {
         <>
           {/* Пользователи */}
           <TabPanel value={tabValue} index={0}>
-            <Paper sx={{ p: 2 }}>
+            <Paper sx={{ 
+              p: 2,
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+            }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                 <Typography variant="h6">Пользователи</Typography>
                 <Button
@@ -489,7 +511,14 @@ const handleDiseaseSubmit = async () => {
 
           {/* Рационы */}
           <TabPanel value={tabValue} index={1}>
-            <Paper sx={{ p: 2 }}>
+            <Paper sx={{ 
+              p: 2,
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+            }}>
               <Box
                 sx={{
                   display: "flex",
@@ -574,7 +603,14 @@ const handleDiseaseSubmit = async () => {
 
           {/* Заболевания */}
           <TabPanel value={tabValue} index={2}>
-            <Paper sx={{ p: 2 }}>
+            <Paper sx={{ 
+              p: 2,
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+            }}>
               <Box
                 sx={{
                   display: "flex",

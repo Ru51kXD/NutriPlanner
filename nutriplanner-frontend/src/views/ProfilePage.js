@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -23,7 +24,12 @@ import {
   Select,
   MenuItem,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Chip,
+  IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
 } from '@mui/material';
 import {
   Person,
@@ -36,9 +42,14 @@ import {
   Cancel,
   FitnessCenter,
   TrendingDown,
-  TrendingUp
+  TrendingUp,
+  Favorite,
+  FavoriteBorder,
+  Close,
+  ExpandMore
 } from '@mui/icons-material';
 import { StorageService } from '../utils/storage';
+import { getAvatarOptions, getAvatar } from '../utils/imageUtils';
 
 const diseases = [
   { value: 'gastritis', label: '🥣 Гастрит (повышенная кислотность)' },
@@ -85,6 +96,7 @@ const goals = [
 ];
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState({
     name: localStorage.getItem('userName') || 'Пользователь',
     email: localStorage.getItem('userEmail') || '',
@@ -94,10 +106,15 @@ const ProfilePage = () => {
     disease: localStorage.getItem('userDisease') || '',
     goal: localStorage.getItem('userGoal') || '',
     joinDate: 'Сегодня',
-    plansCreated: 0
+    plansCreated: 0,
+    favoriteRecipes: 0
   });
   const [recentPlans, setRecentPlans] = useState([]);
+  const [favoritePlans, setFavoritePlans] = useState([]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
+  const [planViewDialogOpen, setPlanViewDialogOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [editForm, setEditForm] = useState({
     name: '',
     email: '',
@@ -114,7 +131,78 @@ const ProfilePage = () => {
   useEffect(() => {
     loadUserData();
     loadUserPlans();
+    loadFavoritePlans();
+    loadFavoriteRecipes();
   }, []);
+
+  const loadFavoriteRecipes = () => {
+    const favorites = JSON.parse(localStorage.getItem('favoriteRecipes') || '[]');
+    setUserData(prev => ({ ...prev, favoriteRecipes: favorites.length }));
+  };
+
+  // Слушаем изменения избранных рецептов
+  useEffect(() => {
+    const handleStorageChange = () => {
+      loadFavoriteRecipes();
+    };
+    
+    window.addEventListener('favoriteRecipesChanged', handleStorageChange);
+    return () => {
+      window.removeEventListener('favoriteRecipesChanged', handleStorageChange);
+    };
+  }, []);
+
+  const loadFavoritePlans = () => {
+    const favorites = JSON.parse(localStorage.getItem('favoritePlans') || '[]');
+    setFavoritePlans(favorites);
+  };
+
+  const toggleFavoritePlan = (planId) => {
+    const favorites = JSON.parse(localStorage.getItem('favoritePlans') || '[]');
+    const index = favorites.indexOf(planId);
+    
+    if (index > -1) {
+      favorites.splice(index, 1);
+    } else {
+      favorites.push(planId);
+    }
+    
+    localStorage.setItem('favoritePlans', JSON.stringify(favorites));
+    setFavoritePlans(favorites);
+  };
+
+  const isPlanFavorite = (planId) => {
+    return favoritePlans.includes(planId);
+  };
+
+  const handleOpenPlanView = async (planId) => {
+    const plans = await StorageService.getPlans();
+    const plan = plans.find(p => p.id === planId);
+    if (plan) {
+      setSelectedPlan(plan);
+      setPlanViewDialogOpen(true);
+    }
+  };
+
+  const getDiseaseLabel = (diseaseValue) => {
+    if (!diseaseValue) return 'Не указано';
+    if (typeof diseaseValue === 'object' && diseaseValue.name) {
+      return diseaseValue.name;
+    }
+    const disease = diseases.find(d => d.value === diseaseValue);
+    return disease ? disease.label : diseaseValue;
+  };
+
+  const getDiseaseColor = (disease) => {
+    const diseaseColors = {
+      'gastritis': 'success',
+      'diabetes': 'error',
+      'obesity': 'warning',
+      'anemia': 'secondary',
+      'hypertension': 'info'
+    };
+    return diseaseColors[disease] || 'default';
+  };
 
   const loadUserData = async () => {
     const userId = localStorage.getItem('userId');
@@ -286,22 +374,46 @@ const ProfilePage = () => {
     setRecentPlans(userPlans.map(plan => ({
       id: plan.id,
       name: plan.name,
-      date: plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('ru-RU') : 'Недавно'
+      date: plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('ru-RU') : 'Недавно',
+      disease: plan.disease,
+      fullPlan: plan
     })));
     setUserData(prev => ({ ...prev, plansCreated: plans.length }));
   };
 
   return (
-    <Container maxWidth="lg" style={{ padding: '32px 0' }}>
-      <Typography variant="h4" component="h1" gutterBottom style={{ fontWeight: 'bold' }}>
+    <Container maxWidth="lg" sx={{ padding: { xs: '16px 0', md: '32px 0' } }}>
+      <Typography 
+        variant="h4" 
+        component="h1" 
+        gutterBottom 
+        sx={{ 
+          fontWeight: 'bold',
+          fontSize: { xs: '1.5rem', md: '2.125rem' },
+          px: { xs: 2, md: 0 }
+        }}
+      >
         👤 Профиль пользователя
       </Typography>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={{ xs: 2, md: 4 }}>
         <Grid item xs={12} md={4}>
-          <Paper style={{ padding: '24px', textAlign: 'center' }}>
+          <Paper sx={{
+            padding: { xs: '16px', md: '24px' },
+            textAlign: 'center',
+            background: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
             <Avatar
-              style={{
+              src={userData.avatarUrl}
+              onClick={() => setAvatarDialogOpen(true)}
+              sx={{ 
+                cursor: 'pointer', 
+                '&:hover': { opacity: 0.8, transform: 'scale(1.05)' },
+                transition: 'all 0.3s ease',
                 width: 100,
                 height: 100,
                 margin: '0 auto 16px auto',
@@ -309,8 +421,11 @@ const ProfilePage = () => {
                 fontSize: '2rem'
               }}
             >
-              {userData.name.split(' ').map(n => n[0]).join('')}
+              {!userData.avatarUrl && userData.name.split(' ').map(n => n[0]).join('')}
             </Avatar>
+            <Typography variant="caption" style={{ display: 'block', textAlign: 'center', color: '#666', marginBottom: '16px' }}>
+              Нажмите на аватар, чтобы изменить
+            </Typography>
             
             <Typography variant="h5" gutterBottom style={{ fontWeight: 'bold' }}>
               {userData.name}
@@ -381,9 +496,15 @@ const ProfilePage = () => {
         </Grid>
 
         <Grid item xs={12} md={8}>
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             <Grid item xs={12} md={6}>
-              <Card>
+              <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+              }}>
                 <CardContent style={{ textAlign: 'center' }}>
                   <Restaurant style={{ fontSize: 48, color: '#2E8B57', marginBottom: '8px' }} />
                   <Typography variant="h4" style={{ fontWeight: 'bold' }}>
@@ -397,7 +518,13 @@ const ProfilePage = () => {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <Card>
+              <Card style={{
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+              }}>
                 <CardContent style={{ textAlign: 'center' }}>
                   <Person style={{ fontSize: 48, color: '#3182CE', marginBottom: '8px' }} />
                   <Typography variant="h4" style={{ fontWeight: 'bold' }}>
@@ -411,7 +538,14 @@ const ProfilePage = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Paper style={{ padding: '24px' }}>
+              <Paper style={{ 
+                padding: '24px',
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+              }}>
                 <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold' }}>
                   📋 Последние планы питания
                 </Typography>
@@ -422,9 +556,34 @@ const ProfilePage = () => {
                         primary={plan.name}
                         secondary={`Создан: ${plan.date}`}
                       />
-                      <Button variant="outlined" size="small">
-                        Открыть
-                      </Button>
+                      <Box style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => toggleFavoritePlan(plan.id)}
+                          style={{
+                            color: isPlanFavorite(plan.id) ? '#EF4444' : '#9CA3AF'
+                          }}
+                        >
+                          {isPlanFavorite(plan.id) ? <Favorite /> : <FavoriteBorder />}
+                        </IconButton>
+                        <Button 
+                          variant="outlined" 
+                          size="small"
+                          onClick={() => handleOpenPlanView(plan.id)}
+                          style={{
+                            borderColor: '#10B981',
+                            color: '#10B981'
+                          }}
+                          sx={{
+                            '&:hover': {
+                              borderColor: '#059669',
+                              backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                            }
+                          }}
+                        >
+                          Открыть
+                        </Button>
+                      </Box>
                     </ListItem>
                   ))}
                 </List>
@@ -461,20 +620,20 @@ const ProfilePage = () => {
           </Typography>
         </DialogTitle>
         
-        <DialogContent style={{ padding: '32px' }}>
+        <DialogContent sx={{ padding: { xs: '16px', md: '32px' }, maxHeight: { xs: 'calc(100vh - 200px)', md: '70vh' }, overflow: 'auto' }}>
           {error && (
-            <Alert severity="error" style={{ marginBottom: '24px' }}>
+            <Alert severity="error" sx={{ marginBottom: { xs: '16px', md: '24px' } }}>
               {error}
             </Alert>
           )}
           
           {success && (
-            <Alert severity="success" style={{ marginBottom: '24px' }}>
+            <Alert severity="success" sx={{ marginBottom: { xs: '16px', md: '24px' } }}>
               {success}
             </Alert>
           )}
 
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -568,7 +727,7 @@ const ProfilePage = () => {
           </Grid>
         </DialogContent>
         
-        <DialogActions style={{ padding: '24px 32px', justifyContent: 'space-between' }}>
+        <DialogActions sx={{ padding: { xs: '16px', md: '24px 32px' }, justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1, sm: 0 } }}>
           <Button 
             onClick={handleCloseEditDialog}
             variant="outlined"
@@ -588,6 +747,254 @@ const ProfilePage = () => {
             }}
           >
             {loading ? 'Сохранение...' : 'Сохранить'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Диалог выбора аватара */}
+      <Dialog 
+        open={avatarDialogOpen} 
+        onClose={() => setAvatarDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Выберите аватар</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} style={{ marginTop: '8px' }}>
+            {getAvatarOptions().map((avatarUrl, index) => (
+              <Grid item xs={4} sm={3} key={index}>
+                <Avatar
+                  src={avatarUrl}
+                  onClick={() => {
+                    const newAvatarUrl = avatarUrl;
+                    setUserData(prev => ({ ...prev, avatarUrl: newAvatarUrl }));
+                    localStorage.setItem('userAvatarUrl', newAvatarUrl);
+                    const userId = localStorage.getItem('userId');
+                    if (userId) {
+                      StorageService.updateUser(userId, { avatarUrl: newAvatarUrl });
+                    }
+                    setAvatarDialogOpen(false);
+                  }}
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    cursor: 'pointer',
+                    border: userData.avatarUrl === avatarUrl ? '3px solid #10B981' : '3px solid transparent',
+                    '&:hover': { transform: 'scale(1.1)', border: '3px solid #10B981' },
+                    transition: 'all 0.3s ease',
+                    margin: '0 auto'
+                  }}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAvatarDialogOpen(false)}>Закрыть</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Диалог просмотра плана */}
+      <Dialog 
+        open={planViewDialogOpen} 
+        onClose={() => setPlanViewDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          style: {
+            borderRadius: '24px',
+            padding: '0'
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+          color: 'white',
+          padding: { xs: '16px', md: '24px 32px' },
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <Box style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Restaurant />
+            <Typography variant="h5" style={{ fontWeight: 700 }}>
+              {selectedPlan?.name || 'План питания'}
+            </Typography>
+          </Box>
+          <Box style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <IconButton
+              onClick={() => selectedPlan && toggleFavoritePlan(selectedPlan.id)}
+              style={{ color: 'white' }}
+            >
+              {selectedPlan && isPlanFavorite(selectedPlan.id) ? <Favorite /> : <FavoriteBorder />}
+            </IconButton>
+            <IconButton
+              onClick={() => setPlanViewDialogOpen(false)}
+              style={{ color: 'white' }}
+            >
+              <Close />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        
+        <DialogContent sx={{ padding: { xs: '16px', md: '32px' }, maxHeight: { xs: 'calc(100vh - 200px)', md: '70vh' }, overflow: 'auto' }}>
+          {selectedPlan && (
+            <Box>
+              <Grid container spacing={{ xs: 2, md: 3 }}>
+                <Grid item xs={12}>
+                  <Box style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '12px',
+                    marginBottom: '16px'
+                  }}>
+                    <Chip 
+                      label={getDiseaseLabel(selectedPlan.disease)}
+                      color={getDiseaseColor(selectedPlan.disease)}
+                      size="medium"
+                    />
+                    <Typography variant="body2" style={{ color: '#718096' }}>
+                      Создан: {selectedPlan.createdAt ? new Date(selectedPlan.createdAt).toLocaleDateString('ru-RU') : 'Недавно'}
+                    </Typography>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <Card style={{
+                    background: 'rgba(16, 185, 129, 0.05)',
+                    padding: '16px',
+                    borderRadius: '12px'
+                  }}>
+                    <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold' }}>
+                      📊 Калории и БЖУ
+                    </Typography>
+                    <Box style={{ marginTop: '16px' }}>
+                      <Typography variant="body1" style={{ marginBottom: '8px' }}>
+                        <strong>Калории:</strong> {selectedPlan.totalCalories || 'Не указано'} ккал/день
+                      </Typography>
+                      <Box style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <Chip 
+                          label={`Белки: ${selectedPlan.bzu?.protein || 0}g`} 
+                          size="small" 
+                          style={{ backgroundColor: '#667eea', color: 'white' }}
+                        />
+                        <Chip 
+                          label={`Жиры: ${selectedPlan.bzu?.fat || 0}g`} 
+                          size="small" 
+                          style={{ backgroundColor: '#764ba2', color: 'white' }}
+                        />
+                        <Chip 
+                          label={`Углеводы: ${selectedPlan.bzu?.carbs || 0}g`} 
+                          size="small" 
+                          style={{ backgroundColor: '#f093fb', color: 'white' }}
+                        />
+                      </Box>
+                    </Box>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <Card style={{
+                    background: 'rgba(59, 130, 246, 0.05)',
+                    padding: '16px',
+                    borderRadius: '12px'
+                  }}>
+                    <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold' }}>
+                      📅 Период
+                    </Typography>
+                    <Typography variant="body1" style={{ marginTop: '16px' }}>
+                      {selectedPlan.duration === 'week' ? 'Неделя' : 
+                       selectedPlan.duration === 'month' ? 'Месяц' :
+                       selectedPlan.duration === 'half-year' ? 'Полгода' : 
+                       selectedPlan.duration === 'year' ? 'Год' : 'Не указано'}
+                    </Typography>
+                  </Card>
+                </Grid>
+
+                {selectedPlan.weeks && selectedPlan.weeks.length > 0 && (
+                  <Grid item xs={12}>
+                    <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold', marginTop: '16px' }}>
+                      📋 Меню на неделю
+                    </Typography>
+                    <Box style={{ marginTop: '16px' }}>
+                      {selectedPlan.weeks[0]?.days?.map((day, dayIndex) => (
+                        <Accordion key={dayIndex} style={{ marginBottom: '8px' }}>
+                          <AccordionSummary expandIcon={<ExpandMore />}>
+                            <Typography variant="subtitle1" style={{ fontWeight: 'bold' }}>
+                              {day.day}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            <List>
+                              {day.meals?.map((meal, mealIndex) => (
+                                <ListItem key={mealIndex}>
+                                  <ListItemIcon>
+                                    <Restaurant style={{ color: '#10B981' }} />
+                                  </ListItemIcon>
+                                  <ListItemText
+                                    primary={meal.name}
+                                    secondary={`${meal.type} • ${meal.calories} ккал • Б: ${meal.protein}g Ж: ${meal.fat}g У: ${meal.carbs}g`}
+                                  />
+                                </ListItem>
+                              ))}
+                            </List>
+                          </AccordionDetails>
+                        </Accordion>
+                      ))}
+                    </Box>
+                  </Grid>
+                )}
+
+                {selectedPlan.recommendations && (
+                  <Grid item xs={12}>
+                    <Card style={{
+                      background: 'rgba(240, 147, 251, 0.05)',
+                      padding: '16px',
+                      borderRadius: '12px'
+                    }}>
+                      <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold' }}>
+                        💡 Рекомендации
+                      </Typography>
+                      <Typography variant="body1" style={{ marginTop: '8px' }}>
+                        {selectedPlan.recommendations}
+                      </Typography>
+                    </Card>
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
+          )}
+        </DialogContent>
+        
+        <DialogActions sx={{ 
+          padding: { xs: '16px', md: '24px 32px' }, 
+          justifyContent: 'flex-end',
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Button 
+            onClick={() => setPlanViewDialogOpen(false)}
+            variant="outlined"
+            startIcon={<Close />}
+            fullWidth={window.innerWidth < 600}
+          >
+            Закрыть
+          </Button>
+          <Button 
+            onClick={() => {
+              if (selectedPlan) {
+                navigate('/plans');
+                setPlanViewDialogOpen(false);
+              }
+            }}
+            variant="contained"
+            fullWidth={window.innerWidth < 600}
+            sx={{
+              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              color: 'white'
+            }}
+          >
+            Перейти к планам
           </Button>
         </DialogActions>
       </Dialog>

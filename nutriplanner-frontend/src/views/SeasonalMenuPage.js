@@ -26,7 +26,9 @@ import {
   LocalFlorist,
   Nature,
   Close,
-  Visibility
+  Visibility,
+  Favorite,
+  FavoriteBorder
 } from '@mui/icons-material';
 
 // Сезонные блюда
@@ -83,6 +85,7 @@ const SeasonalMenuPage = () => {
   const [selectedSeason, setSelectedSeason] = useState('spring');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
 
   const handleOpenRecipe = (recipe) => {
     setSelectedRecipe(recipe);
@@ -92,6 +95,31 @@ const SeasonalMenuPage = () => {
   const handleCloseRecipe = () => {
     setDialogOpen(false);
     setSelectedRecipe(null);
+  };
+
+  React.useEffect(() => {
+    const favorites = JSON.parse(localStorage.getItem('favoriteRecipes') || '[]');
+    setFavoriteRecipes(favorites);
+  }, []);
+
+  const toggleFavoriteRecipe = (recipeName, e) => {
+    if (e) e.stopPropagation();
+    const favorites = JSON.parse(localStorage.getItem('favoriteRecipes') || '[]');
+    const index = favorites.indexOf(recipeName);
+    
+    if (index > -1) {
+      favorites.splice(index, 1);
+    } else {
+      favorites.push(recipeName);
+    }
+    
+    localStorage.setItem('favoriteRecipes', JSON.stringify(favorites));
+    setFavoriteRecipes(favorites);
+    window.dispatchEvent(new Event('favoriteRecipesChanged'));
+  };
+
+  const isRecipeFavorite = (recipeName) => {
+    return favoriteRecipes.includes(recipeName);
   };
 
   const currentRecipes = seasonalRecipes[selectedSeason] || [];
@@ -116,7 +144,12 @@ const SeasonalMenuPage = () => {
         padding: '32px', 
         marginBottom: '32px',
         animation: 'fadeInUp 0.8s ease-out',
-        borderRadius: '24px'
+        borderRadius: '24px',
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)'
       }}>
         <Typography variant="h4" component="h1" gutterBottom align="center" style={{ color: '#2E8B57' }}>
           🍂 Сезонное меню
@@ -185,17 +218,28 @@ const SeasonalMenuPage = () => {
                         <Typography variant="h6" gutterBottom style={{ color: seasonColors[selectedSeason], fontWeight: 600 }}>
                           {recipe.name}
                         </Typography>
-                        <Button
-                          size="small"
-                          startIcon={<Visibility />}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenRecipe(recipe);
-                          }}
-                          style={{ color: seasonColors[selectedSeason] }}
-                        >
-                          Открыть
-                        </Button>
+                        <Box style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <IconButton
+                            size="small"
+                            onClick={(e) => toggleFavoriteRecipe(recipe.name, e)}
+                            style={{ 
+                              color: isRecipeFavorite(recipe.name) ? '#EF4444' : '#9CA3AF'
+                            }}
+                          >
+                            {isRecipeFavorite(recipe.name) ? <Favorite /> : <FavoriteBorder />}
+                          </IconButton>
+                          <Button
+                            size="small"
+                            startIcon={<Visibility />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenRecipe(recipe);
+                            }}
+                            style={{ color: seasonColors[selectedSeason] }}
+                          >
+                            Открыть
+                          </Button>
+                        </Box>
                       </Box>
                       <Typography variant="body2" color="text.secondary" style={{ marginBottom: '16px' }}>
                         {recipe.description}

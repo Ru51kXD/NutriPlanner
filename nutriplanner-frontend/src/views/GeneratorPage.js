@@ -402,15 +402,16 @@ const savePlanToDatabase = async (plan) => {
   };
 
   return (
-    <Container maxWidth="lg" style={{ padding: '32px 0' }} className="fade-in-up">
+    <Container maxWidth="lg" sx={{ padding: { xs: '16px 0', md: '32px 0' } }} className="fade-in-up">
       <Paper elevation={0} style={{ 
         padding: '48px', 
         marginBottom: '32px',
-        background: 'rgba(255,255,255,0.98)',
-        backdropFilter: 'blur(20px)',
+        background: 'rgba(255,255,255,0.85)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         borderRadius: '32px',
         boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
-        border: '1px solid rgba(255,255,255,0.3)',
+        border: '1px solid rgba(255,255,255,0.4)',
         animation: 'fadeInUp 0.8s ease-out'
       }}>
         <Typography variant="h3" component="h1" gutterBottom align="center" style={{ 

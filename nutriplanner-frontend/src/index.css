@@ -115,3 +115,35 @@ body {
   background: linear-gradient(135deg, #059669 0%, #2563EB 100%);
   background-clip: padding-box;
 }
+
+/* Стили для полупрозрачных элементов */
+.transparent-card,
+.MuiPaper-root,
+.MuiCard-root {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+.MuiDialog-paper {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+}
+
+.MuiAppBar-root {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+}
+
+/* Полупрозрачные контейнеры */
+.transparent-container {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 16px;
+  padding: 24px;
+}

@@ -11,5 +11,15 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <script>
+      // Предотвращаем ошибки MetaMask, если расширение не подключено
+      if (typeof window.ethereum !== 'undefined') {
+        // MetaMask установлен, но не обязательно подключен
+        // Игнорируем ошибки подключения
+        window.ethereum.on('error', (error) => {
+          console.log('MetaMask error ignored:', error);
+        });
+      }
+    </script>
   </body>
 </html>

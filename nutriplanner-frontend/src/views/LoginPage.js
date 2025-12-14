@@ -65,7 +65,14 @@ const LoginPage = () => {
 
   return (
     <Container maxWidth="sm" style={{ padding: '64px 16px' }}>
-      <Card elevation={8} style={{ borderRadius: '12px' }}>
+      <Card elevation={8} style={{ 
+        borderRadius: '24px',
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)'
+      }}>
         <CardContent style={{ padding: '32px' }}>
           <Box textAlign="center" style={{ marginBottom: '24px' }}>
             <Login style={{ fontSize: 48, color: '#2E8B57', marginBottom: '16px' }} />

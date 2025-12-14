@@ -24,9 +24,12 @@ import {
   Delete,
   Restaurant,
   Close,
-  Visibility
+  Visibility,
+  Favorite,
+  FavoriteBorder
 } from '@mui/icons-material';
 import { StorageService } from '../utils/storage';
+import { getRecipeImage } from '../utils/imageUtils';
 
 const RecipeGeneratorPage = () => {
   const [productInput, setProductInput] = useState('');
@@ -38,6 +41,33 @@ const RecipeGeneratorPage = () => {
   const [error, setError] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+
+  // Загружаем избранные рецепты
+  useEffect(() => {
+    const favorites = JSON.parse(localStorage.getItem('favoriteRecipes') || '[]');
+    setFavoriteRecipes(favorites);
+  }, []);
+
+  const toggleFavoriteRecipe = (recipeId, e) => {
+    e.stopPropagation(); // Предотвращаем открытие диалога при клике на лайк
+    const favorites = JSON.parse(localStorage.getItem('favoriteRecipes') || '[]');
+    const index = favorites.indexOf(recipeId);
+    
+    if (index > -1) {
+      favorites.splice(index, 1);
+    } else {
+      favorites.push(recipeId);
+    }
+    
+    localStorage.setItem('favoriteRecipes', JSON.stringify(favorites));
+    setFavoriteRecipes(favorites);
+    window.dispatchEvent(new Event('favoriteRecipesChanged'));
+  };
+
+  const isRecipeFavorite = (recipeId) => {
+    return favoriteRecipes.includes(recipeId);
+  };
 
   // Загружаем рецепты из хранилища при монтировании компонента
   useEffect(() => {
@@ -347,7 +377,12 @@ const RecipeGeneratorPage = () => {
         padding: '32px', 
         marginBottom: '32px',
         animation: 'fadeInUp 0.8s ease-out',
-        borderRadius: '24px'
+        borderRadius: '24px',
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)'
       }}>
         <Typography variant="h4" component="h1" gutterBottom align="center" style={{ color: '#2E8B57' }}>
           🤖 AI Генерация рецептов
@@ -470,7 +505,8 @@ const RecipeGeneratorPage = () => {
                       borderLeft: '4px solid', 
                       borderColor: '#2E8B57',
                       cursor: 'pointer',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      overflow: 'hidden'
                     }}
                     onClick={() => handleOpenRecipe(recipe)}
                     sx={{
@@ -480,25 +516,56 @@ const RecipeGeneratorPage = () => {
                       }
                     }}
                   >
+                    <Box
+                      style={{
+                        width: '100%',
+                        height: '200px',
+                        backgroundImage: `url(${getRecipeImage(recipe.name)})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        position: 'relative'
+                      }}
+                    >
+                      <Box
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3))'
+                        }}
+                      />
+                    </Box>
                     <CardContent>
                       <Box style={{ display: 'flex', alignItems: 'start', marginBottom: '16px' }}>
-                        <Restaurant style={{ fontSize: 32, color: '#2E8B57', marginRight: '12px' }} />
                         <Box style={{ flex: 1 }}>
                           <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Typography variant="h6" gutterBottom style={{ color: '#2E8B57', fontWeight: 600 }}>
                               {recipe.name}
                             </Typography>
-                            <Button
-                              size="small"
-                              startIcon={<Visibility />}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenRecipe(recipe);
-                              }}
-                              style={{ color: '#2E8B57' }}
-                            >
-                              Открыть
-                            </Button>
+                            <Box style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => toggleFavoriteRecipe(recipe.id, e)}
+                                style={{ 
+                                  color: isRecipeFavorite(recipe.id) ? '#EF4444' : '#9CA3AF'
+                                }}
+                              >
+                                {isRecipeFavorite(recipe.id) ? <Favorite /> : <FavoriteBorder />}
+                              </IconButton>
+                              <Button
+                                size="small"
+                                startIcon={<Visibility />}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenRecipe(recipe);
+                                }}
+                                style={{ color: '#2E8B57' }}
+                              >
+                                Открыть
+                              </Button>
+                            </Box>
                           </Box>
                           <Typography variant="body2" color="text.secondary" style={{ marginBottom: '12px' }}>
                             {recipe.description}

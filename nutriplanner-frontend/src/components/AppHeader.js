@@ -5,15 +5,27 @@ import {
   Typography,
   Button,
   Box,
-  Container
+  Container,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+  IconButton,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import { Logout } from '@mui/icons-material';
+import { Logout, Menu, Close } from '@mui/icons-material';
+import { colors, getTextColor } from '../theme/colors';
 
 const AppHeader = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // Проверяем статус авторизации при загрузке и при изменении
   useEffect(() => {
@@ -68,6 +80,7 @@ const AppHeader = () => {
   };
 
   const handleNavigation = (path) => {
+    setMobileOpen(false); // Закрываем мобильное меню
     // Плавная прокрутка вверх перед переходом
     window.scrollTo({
       top: 0,
@@ -77,6 +90,10 @@ const AppHeader = () => {
     setTimeout(() => {
       navigate(path);
     }, 200);
+  };
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
   return (
@@ -169,12 +186,12 @@ const AppHeader = () => {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                fontSize: '1.85rem',
+                fontSize: isMobile ? '1.3rem' : '1.85rem',
                 letterSpacing: '-0.02em',
                 margin: 0,
                 padding: 0,
                 position: 'relative',
-                display: 'inline-block'
+                display: isMobile ? 'none' : 'inline-block'
               }}
               sx={{
                 '@supports not (-webkit-background-clip: text)': {
@@ -201,13 +218,30 @@ const AppHeader = () => {
             </Typography>
           </Box>
 
-          <Box style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {isMobile && (
+            <IconButton
+              onClick={handleDrawerToggle}
+              style={{ color: '#374151' }}
+              sx={{ display: { md: 'none' } }}
+            >
+              <Menu />
+            </IconButton>
+          )}
+
+          <Box 
+            sx={{ 
+              display: { xs: 'none', md: 'flex' }, 
+              gap: '8px', 
+              alignItems: 'center', 
+              flexWrap: 'wrap' 
+            }}
+          >
             <Button 
               onClick={() => handleNavigation('/generator')}
               variant="contained"
               style={{ 
-                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                color: 'white',
+                background: colors.primary.gradient,
+                color: colors.text.white,
                 fontWeight: 700,
                 borderRadius: '14px',
                 padding: '10px 24px',
@@ -290,30 +324,6 @@ const AppHeader = () => {
             >
               📈 Прогресс
             </Button>
-            {isAuthenticated && (
-              <Button 
-                onClick={() => handleNavigation('/profile')}
-                style={{ 
-                  color: '#374151',
-                  fontWeight: 600,
-                  borderRadius: '12px',
-                  padding: '10px 18px',
-                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                  textTransform: 'none',
-                  fontSize: '0.95rem'
-                }}
-                sx={{
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%)',
-                    color: '#10B981',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)',
-                  }
-                }}
-              >
-                👤 Профиль
-              </Button>
-            )}
             <Button 
               onClick={() => handleNavigation('/recipe-generator')}
               style={{ 
@@ -360,14 +370,27 @@ const AppHeader = () => {
             </Button>
             {isAuthenticated ? (
               <>
-                {userName && (
+                {userName && !isMobile && (
                   <Typography 
                     variant="body2" 
+                    onClick={() => handleNavigation('/profile')}
                     style={{ 
                       color: '#374151',
                       fontWeight: 600,
-                      padding: '0 12px',
-                      fontSize: '0.9rem'
+                      padding: '10px 18px',
+                      fontSize: '0.9rem',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      userSelect: 'none'
+                    }}
+                    sx={{
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%)',
+                        color: '#10B981',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)',
+                      }
                     }}
                   >
                     👤 {userName}
@@ -383,10 +406,10 @@ const AppHeader = () => {
                     color: '#EF4444',
                     fontWeight: 700,
                     borderRadius: '14px',
-                    padding: '10px 24px',
+                    padding: isMobile ? '8px 16px' : '10px 24px',
                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     textTransform: 'none',
-                    fontSize: '0.95rem',
+                    fontSize: isMobile ? '0.85rem' : '0.95rem',
                     background: 'rgba(239, 68, 68, 0.03)',
                     position: 'relative',
                     overflow: 'hidden'
@@ -418,7 +441,7 @@ const AppHeader = () => {
                     }
                   }}
                 >
-                  Выйти
+                  {isMobile ? '' : 'Выйти'}
                 </Button>
               </>
             ) : (
@@ -431,13 +454,13 @@ const AppHeader = () => {
                   color: '#10B981',
                   fontWeight: 700,
                   borderRadius: '14px',
-                  padding: '10px 24px',
-                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                  textTransform: 'none',
-                  fontSize: '0.95rem',
-                  background: 'rgba(16, 185, 129, 0.03)',
-                  position: 'relative',
-                  overflow: 'hidden'
+                    padding: isMobile ? '8px 16px' : '10px 24px',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    textTransform: 'none',
+                    fontSize: isMobile ? '0.85rem' : '0.95rem',
+                    background: 'rgba(16, 185, 129, 0.03)',
+                    position: 'relative',
+                    overflow: 'hidden'
                 }}
                 sx={{
                   '&::before': {
@@ -466,12 +489,82 @@ const AppHeader = () => {
                   }
                 }}
               >
-                Войти
+                {isMobile ? '' : 'Войти'}
               </Button>
             )}
           </Box>
         </Toolbar>
       </Container>
+
+      {/* Мобильное меню */}
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        PaperProps={{
+          sx: {
+            width: { xs: '280px', sm: '320px' },
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 250, 0.98) 100%)',
+            backdropFilter: 'blur(30px)',
+          }
+        }}
+      >
+        <Box style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(16, 185, 129, 0.1)' }}>
+          <Typography variant="h6" style={{ fontWeight: 700, color: '#10B981' }}>
+            Меню
+          </Typography>
+          <IconButton onClick={handleDrawerToggle}>
+            <Close />
+          </IconButton>
+        </Box>
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => handleNavigation('/generator')}>
+              <ListItemText primary="✨ Создать рацион" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => handleNavigation('/plans')}>
+              <ListItemText primary="📋 Мои планы" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => handleNavigation('/progress')}>
+              <ListItemText primary="📈 Прогресс" />
+            </ListItemButton>
+          </ListItem>
+          {isAuthenticated && (
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => handleNavigation('/profile')}>
+                <ListItemText primary={`👤 ${userName || 'Профиль'}`} />
+              </ListItemButton>
+            </ListItem>
+          )}
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => handleNavigation('/recipe-generator')}>
+              <ListItemText primary="🍳 Рецепты" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => handleNavigation('/seasonal-menu')}>
+              <ListItemText primary="🍂 Сезоны" />
+            </ListItemButton>
+          </ListItem>
+          {isAuthenticated ? (
+            <ListItem disablePadding>
+              <ListItemButton onClick={handleLogout} style={{ color: '#EF4444' }}>
+                <ListItemText primary="Выйти" />
+              </ListItemButton>
+            </ListItem>
+          ) : (
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => handleNavigation('/login')}>
+                <ListItemText primary="Войти" />
+              </ListItemButton>
+            </ListItem>
+          )}
+        </List>
+      </Drawer>
     </AppBar>
   );
 };
