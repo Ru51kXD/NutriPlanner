@@ -80,3 +80,4 @@ psql -U postgres -d nutriplanner -f database/seed.sql
 
 См. файл `LAUNCH_GUIDE.md` для полной инструкции.
 
+

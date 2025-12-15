@@ -280,3 +280,4 @@ npm start
 - `PGADMIN_INSTRUCTIONS.md` - работа через pgAdmin
 - `DATABASE_CONNECTION_GUIDE.md` - подробное руководство
 
+

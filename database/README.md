@@ -144,3 +144,4 @@ SELECT COUNT(*) FROM diseases;
 
 
 
+
